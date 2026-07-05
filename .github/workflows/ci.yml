@@ -41,12 +41,7 @@ jobs:
   e2e:
     name: e2e
     runs-on: ubuntu-latest
-    # Local Supabase values are the same on every machine, so it's safe to pin
-    # them here. The anon key is a public, non-secret local dev token.
     env:
-      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
-      MAILPIT_URL: http://127.0.0.1:54324
       E2E_DB: "1"
       NEXT_TELEMETRY_DISABLED: "1"
     steps:
@@ -60,6 +55,18 @@ jobs:
           version: latest
       # Boots Postgres + Auth + Mailpit and applies supabase/migrations.
       - run: supabase start
+      # Read the local stack's URLs + anon key from the CLI rather than pinning
+      # them in the repo — the anon key is a JWT, and committing one trips
+      # secret scanners even though the local dev token is public. These feed
+      # both the build (NEXT_PUBLIC_* are inlined) and the Playwright run.
+      - name: Export local Supabase env
+        run: |
+          eval "$(supabase status -o env)"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "MAILPIT_URL=$MAILPIT_URL"
+          } >> "$GITHUB_ENV"
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
