@@ -11,6 +11,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "no-mistakes": "bash scripts/no-mistakes.sh",
+    "ship": "bash scripts/ship.sh",
+    "prepare": "bash scripts/setup-hooks.sh 2>/dev/null || true",
     "db:start": "supabase start",
     "db:reset": "supabase db reset",
     "db:types": "supabase gen types typescript --local > lib/supabase/database.types.ts"
