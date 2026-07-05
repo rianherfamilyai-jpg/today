@@ -1,0 +1,3 @@
+-- Local dev seed. Runs on `supabase db reset`.
+-- Profiles are created by the on_auth_user_created trigger when you sign up
+-- locally, so there is nothing to seed yet. Add product fixtures below.
