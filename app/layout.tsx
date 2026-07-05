@@ -14,8 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Product Template",
-  description: "Golden-path starter — Next.js + Supabase + Tailwind/shadcn.",
+  title: "Today — a to-do list that stays short",
+  description:
+    "Today keeps today small and lets everything else wait in Someday. No backlog, no guilt.",
 };
 
 export default function RootLayout({

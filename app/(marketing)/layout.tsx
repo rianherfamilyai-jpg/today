@@ -10,7 +10,7 @@ export default function MarketingLayout({
       <header className="border-b">
         <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <Link href="/" className="font-semibold">
-            Product
+            Today
           </Link>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <Link href="/privacy" className="hover:text-foreground">
@@ -28,7 +28,7 @@ export default function MarketingLayout({
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-16">{children}</main>
       <footer className="border-t">
         <div className="mx-auto max-w-5xl px-6 py-8 text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Product. A free beta.
+          © {new Date().getFullYear()} Today. A free beta.
         </div>
       </footer>
     </div>

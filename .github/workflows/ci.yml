@@ -41,17 +41,28 @@ jobs:
   e2e:
     name: e2e
     runs-on: ubuntu-latest
+    # Local Supabase values are the same on every machine, so it's safe to pin
+    # them here. The anon key is a public, non-secret local dev token.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+      MAILPIT_URL: http://127.0.0.1:54324
+      E2E_DB: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      # Boots Postgres + Auth + Mailpit and applies supabase/migrations.
+      - run: supabase start
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
-        env:
-          NEXT_TELEMETRY_DISABLED: "1"
       - run: npm run test:e2e
 
   security:
