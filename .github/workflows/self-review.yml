@@ -1,0 +1,66 @@
+# Self-review gate (advisory) — an independent agent reviews every PR against the
+# PRD + CLAUDE.md before it auto-merges. This is the judgment step CI can't do:
+# CI proves the code is well-formed and existing tests pass; this asks "does the
+# change do what its PRD asked, and is it safe?"
+#
+# DORMANT BY DEFAULT. It only runs when a repo opts in:
+#   1. gh secret set CLAUDE_CODE_OAUTH_TOKEN --body "<token>"
+#   2. gh variable set SELF_REVIEW --body "on"
+# Until both are set, this workflow no-ops — zero token spend in fresh products.
+#
+# ADVISORY today: it posts a review but never fails the job, so it cannot block
+# auto-merge yet. To make it a real gate (phase 2), promote it to a required
+# check by adding { "context": "self-review" } to apply-gate.sh and emitting a
+# failing status when the review finds a blocking issue.
+name: self-review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# One review per PR; a new push cancels the previous run so we don't burn tokens
+# reviewing a diff that's already stale.
+concurrency:
+  group: self-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  self-review:
+    # Opt-in switch + skip forks (no secret access from forked PRs anyway).
+    if: ${{ vars.SELF_REVIEW == 'on' && github.event.pull_request.head.repo.fork == false }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Keep the reviewer cheap and bounded; it reads the repo but must not push.
+          claude_args: "--max-turns 12"
+          prompt: |
+            You are the independent self-review gate for a financial-data product.
+            Review THIS pull request as a strict but fair reviewer. Read CLAUDE.md
+            for the non-negotiable rules, and read the matching PRD in docs/specs/
+            (match it to the PR title/branch) for what this change is supposed to do.
+
+            Judge the diff against these, in order:
+            1. Does it satisfy the PRD's success check? If there is no PRD for a
+               non-trivial change, say so.
+            2. Any new DB table must enable RLS and add policies. Flag any that don't.
+            3. Entitlement checks must go through hasFeature(user, feature) — flag any
+               scattered `plan ===` comparisons.
+            4. New user-facing behavior must be covered by a Vitest or Playwright test.
+               Flag new behavior that ships with no test.
+            5. Obvious security or logic bugs; any reading/printing of .env*.
+            6. Scope: does the diff stay within what the PRD asked, or does it sprawl?
+
+            Post ONE concise PR review. Start it with a verdict line:
+            "SELF-REVIEW: PASS" if you'd merge, or "SELF-REVIEW: CONCERNS" with a
+            short bulleted list of the blocking items. Be specific (file:line). Do
+            not restate the diff. Do not push commits.
