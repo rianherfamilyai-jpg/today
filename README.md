@@ -1,8 +1,8 @@
-# Product template (golden path)
+# today
 
 Next.js (App Router) + TypeScript · Tailwind v4 + shadcn/ui · Supabase (Postgres + Auth + RLS) · Vitest + Playwright · Sentry + PostHog · deployed on Vercel.
 
-This directory is the starter every new product clones (see `../scripts/new-product.sh`). Agents: read [`CLAUDE.md`](./CLAUDE.md) first.
+Scaffolded from the `ai-code` golden-path template. Agents: read [`CLAUDE.md`](./CLAUDE.md) first.
 
 ## Quick start
 
