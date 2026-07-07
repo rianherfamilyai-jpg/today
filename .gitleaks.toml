@@ -1,0 +1,17 @@
+# Secret-scanning config for `security` CI job (gitleaks).
+# Keeps all of gitleaks' default rules; only adds a narrow allowlist.
+title = "today gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Commit 54c4eca (slice 1) briefly pinned Supabase's well-known *local* anon key
+— a public, non-secret dev token that ships in every client bundle and in
+Supabase's own docs. CI now reads that key from the Supabase CLI at runtime
+instead of committing it, so nothing at HEAD carries a token. This entry only
+clears that one historical diff so the PR re-scan stays green without rewriting
+published history. Real secrets belong in GitHub Actions secrets, never inline.
+"""
+commits = ["54c4eca5ae039ee7ee0a154c5732602c7384f828"]
