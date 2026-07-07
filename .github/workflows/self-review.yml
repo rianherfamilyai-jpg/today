@@ -41,6 +41,10 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # TEMP DIAGNOSTIC: full transcript so we can see which tool call is
+          # being denied (a clean run posted nothing, permission_denials_count: 4).
+          # Revert once root-caused — full output is off by default for a reason.
+          show_full_output: true
           # Keep the reviewer cheap and bounded; it reads the repo but must not push.
           claude_args: "--max-turns 30"
           prompt: |
