@@ -3,10 +3,10 @@ import { expect, test } from "@playwright/test";
 test("landing renders the beta hero and CTA", async ({ page }) => {
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: /track expenses/i })
+    page.getByRole("heading", { name: /stays short/i })
   ).toBeVisible();
   await expect(
-    page.getByRole("link", { name: /request an invite/i })
+    page.getByRole("link", { name: /start today/i })
   ).toBeVisible();
 });
 

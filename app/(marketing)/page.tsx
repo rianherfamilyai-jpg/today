@@ -9,15 +9,16 @@ export default function LandingPage() {
         Free beta
       </span>
       <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-        Track expenses without the busywork.
+        A to-do list that stays short.
       </h1>
       <p className="max-w-xl text-lg text-muted-foreground">
-        A calm, private expense tracker. Manual entry and CSV import — no bank
-        logins, no ads. Your data stays yours.
+        Today keeps today small and lets everything else wait in Someday. No
+        endless backlog, no red “overdue”, no guilt — just the few things that
+        actually matter now.
       </p>
       <div className="flex flex-wrap gap-3">
         <Button asChild size="lg">
-          <Link href="/login">Request an invite</Link>
+          <Link href="/login">Start today</Link>
         </Button>
         <Button asChild size="lg" variant="outline">
           <Link href="/privacy">How we handle your data</Link>

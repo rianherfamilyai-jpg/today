@@ -41,17 +41,35 @@ jobs:
   e2e:
     name: e2e
     runs-on: ubuntu-latest
+    env:
+      E2E_DB: "1"
+      NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      # Boots Postgres + Auth + Mailpit and applies supabase/migrations.
+      - run: supabase start
+      # Read the local stack's URLs + anon key from the CLI rather than pinning
+      # them in the repo — the anon key is a JWT, and committing one trips
+      # secret scanners even though the local dev token is public. These feed
+      # both the build (NEXT_PUBLIC_* are inlined) and the Playwright run.
+      - name: Export local Supabase env
+        run: |
+          eval "$(supabase status -o env)"
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$ANON_KEY"
+            echo "MAILPIT_URL=$MAILPIT_URL"
+          } >> "$GITHUB_ENV"
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run build
-        env:
-          NEXT_TELEMETRY_DISABLED: "1"
       - run: npm run test:e2e
 
   security:
